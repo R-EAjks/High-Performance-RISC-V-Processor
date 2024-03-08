@@ -293,3 +293,50 @@ trait HasCSRConst {
   }
 }
 object CSRConst extends HasCSRConst
+
+trait CSRDef {
+  object PrivMode extends ChiselEnum {
+    val U = Value(0.U)
+    val S = Value(1.U)
+    val M = Value(3.U)
+  }
+
+  object VirtMode extends ChiselEnum {
+    val Off = Value(0.U)
+    val On = Value(1.U)
+  }
+
+  trait FieldEncode {
+    protected val encodeWidth: Int
+  }
+
+  trait XLENEncode extends FieldEncode {
+    val encodeWidth = 2
+    val XLEN32  = 1.U
+    val XLEN64  = 2.U
+    val XLEN128 = 3.U
+
+    def isRVReserved(x: UInt): Bool = x(1, 0) === 0.U
+
+    def isXSReserved(x: UInt): Bool = x(1, 0) =/= XLEN64
+  }
+
+  object MXL extends XLENEncode
+
+  object SXL extends XLENEncode
+
+  object UXL extends XLENEncode
+
+  object VSXL extends XLENEncode
+
+  trait MtvecModeEncode extends FieldEncode {
+    val encodeWidth = 2
+
+    val Direct   = 0.U
+    val Vectored = 1.U
+
+    def isReserved(x: UInt): Bool = x(1, 0) >= 2.U
+  }
+
+  object MtvecModeEncode extends MtvecModeEncode
+}
